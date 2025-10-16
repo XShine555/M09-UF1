@@ -10,7 +10,7 @@ public class AES {
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final int MIDA_IV = 16;
-    private static final byte[] iv = generateIv();
+    private static byte[] iv;
     private static final String CLAU = "UnaClaveDe32BytesHaceFalta.!@·8";
 
     public static void main(String[] args) {
@@ -25,6 +25,7 @@ public class AES {
             String desxifrat = "";
 
             try {
+                iv = generateIv();
                 bXifrats = xifraAES(msg, CLAU);
                 desxifrat = desxifraAES(bXifrats, CLAU);
             } catch (Exception e) {
