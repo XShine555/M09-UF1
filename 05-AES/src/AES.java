@@ -10,7 +10,6 @@ public class AES {
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final int MIDA_IV = 16;
-    private static byte[] iv;
     private static final String CLAU = "UnaClaveDe32BytesHaceFalta.!@·8";
 
     public static void main(String[] args) {
@@ -24,8 +23,7 @@ public class AES {
             byte[] bXifrats = new byte[0];
             String desxifrat = "";
 
-            try {
-                iv = generateIv();
+            try {   
                 bXifrats = xifraAES(msg, CLAU);
                 desxifrat = desxifraAES(bXifrats, CLAU);
             } catch (Exception e) {
@@ -40,6 +38,7 @@ public class AES {
     }
 
     public static byte[] xifraAES(String msg, String password) throws Exception {
+        byte[] iv = generateIv();
         byte[] bMsg = msg.getBytes();
 
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
@@ -48,17 +47,29 @@ public class AES {
         Cipher cipher = Cipher.getInstance(FORMAT_AES);
         cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
 
-        return cipher.doFinal(bMsg);
+        byte[] encryptedMsg = cipher.doFinal(bMsg);
+
+        byte[] bMsgWithIv = new byte[iv.length + encryptedMsg.length];
+        System.arraycopy(iv, 0, bMsgWithIv, 0, iv.length);
+        System.arraycopy(encryptedMsg, 0, bMsgWithIv, iv.length, encryptedMsg.length);
+        
+        return bMsgWithIv;
     }
 
     public static String desxifraAES(byte[] bMsgXifrat, String pasString) throws Exception {
+        byte[] iv = new byte[MIDA_IV];
+        System.arraycopy(bMsgXifrat, 0, iv, 0, iv.length);
+
+        byte[] bMsg = new byte[bMsgXifrat.length - iv.length];
+        System.arraycopy(bMsgXifrat, iv.length, bMsg, 0, bMsg.length);
+
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         SecretKeySpec key = new SecretKeySpec(pasString.getBytes(), ALGORISME_XIFRAT);
 
         Cipher cipher = Cipher.getInstance(FORMAT_AES);
         cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
 
-        byte[] decryptedData = cipher.doFinal(bMsgXifrat);
+        byte[] decryptedData = cipher.doFinal(bMsg);
         return new String(decryptedData);
     }
 
