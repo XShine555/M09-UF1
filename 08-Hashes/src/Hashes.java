@@ -14,7 +14,6 @@ public class Hashes {
     public long npass = 0;
 
     private static final char[] CHARSET = "abcdefABCDEF1234567890!".toCharArray();
-    private static final int MAX_LENGTH = 6;
 
     public String getSHA512AmbSalt(String pw, String salt) {
         try {
@@ -42,28 +41,90 @@ public class Hashes {
         }
     }
 
-    public String forcaBrutaRecursive(String alg, String hash, String salt, String current) {
-        if (current.length() > MAX_LENGTH) {
-            return null;
-        }
-
-        
-        if (computeHash(alg, current, salt).equals(hash)) {
-            return current;
-        }
-        this.npass++;
-
-        for (char c : CHARSET) {
-            String attempt = forcaBrutaRecursive(alg, hash, salt, current + c);
-            if (attempt != null) {
-                return attempt;
+    public String forcaBruta(String alg, String hash, String salt) {
+        for (int a = 0; a < CHARSET.length; a++) {
+            for (int b = 0; b < CHARSET.length; b++) {
+                for (int c = 0; c < CHARSET.length; c++) {
+                    for (int d = 0; d < CHARSET.length; d++) {
+                        for (int e = 0; e < CHARSET.length; e++) {
+                            for (int f = 0; f < CHARSET.length; f++) {
+                                String combination = "" + CHARSET[a] + CHARSET[b] + CHARSET[c]
+                                        + CHARSET[d] + CHARSET[e] + CHARSET[f];
+                                String attempt = computeHash(alg, combination, salt);
+                                if (attempt.equals(hash)) {
+                                    return combination;
+                                }
+                                System.out.println("Provat: " + combination);
+                                npass++;
+                            }
+                        }
+                    }
+                }
             }
         }
+        for (int a = 0; a < CHARSET.length; a++) {
+            for (int b = 0; b < CHARSET.length; b++) {
+                for (int c = 0; c < CHARSET.length; c++) {
+                    for (int d = 0; d < CHARSET.length; d++) {
+                        for (int e = 0; e < CHARSET.length; e++) {
+                            String combination = "" + CHARSET[a] + CHARSET[b] + CHARSET[c]
+                                    + CHARSET[d] + CHARSET[e];
+                            String attempt = computeHash(alg, combination, salt);
+                            if (attempt.equals(hash)) {
+                                return combination;
+                            }
+                            npass++;
+                        }
+                    }
+                }
+            }
+        }
+        for (int a = 0; a < CHARSET.length; a++) {
+            for (int b = 0; b < CHARSET.length; b++) {
+                for (int c = 0; c < CHARSET.length; c++) {
+                    for (int d = 0; d < CHARSET.length; d++) {
+                        String combination = "" + CHARSET[a] + CHARSET[b] + CHARSET[c]
+                                + CHARSET[d];
+                        String attempt = computeHash(alg, combination, salt);
+                        if (attempt.equals(hash)) {
+                            return combination;
+                        }
+                        npass++;
+                    }
+                }
+            }
+        }
+        for (int a = 0; a < CHARSET.length; a++) {
+            for (int b = 0; b < CHARSET.length; b++) {
+                for (int c = 0; c < CHARSET.length; c++) {
+                    String combination = "" + CHARSET[a] + CHARSET[b] + CHARSET[c];
+                    String attempt = computeHash(alg, combination, salt);
+                    if (attempt.equals(hash)) {
+                        return combination;
+                    }
+                    npass++;
+                }
+            }
+        }
+        for (int a = 0; a < CHARSET.length; a++) {
+            for (int b = 0; b < CHARSET.length; b++) {
+                String combination = "" + CHARSET[a] + CHARSET[b];
+                String attempt = computeHash(alg, combination, salt);
+                if (attempt.equals(hash)) {
+                    return combination;
+                }
+                npass++;
+            }
+        }
+        for (int a = 0; a < CHARSET.length; a++) {
+            String combination = String.valueOf(CHARSET[a]);
+            String attempt = computeHash(alg, combination, salt);
+            if (attempt.equals(hash)) {
+                return combination;
+            }
+            npass++;
+        }
         return null;
-    }
-
-    public String forcaBruta(String alg, String hash, String salt) {
-        return forcaBrutaRecursive(alg, hash, salt, "");
     }
 
     private String computeHash(String alg, String input, String salt) {
